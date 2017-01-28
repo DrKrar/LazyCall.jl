@@ -1,5 +1,11 @@
-using LazyCall
-using Base.Test
+using ChainRecursive
+using Documenter
 
-# write your own tests here
-@test 1 == 2
+makedocs(
+    modules = [ChainRecursive],
+    format = :html,
+    sitename = "ChainRecursive.jl",
+    root = joinpath(dirname(dirname(@__FILE__)), "docs"),
+    pages = Any["Home" => "index.md"],
+    strict = true
+)
