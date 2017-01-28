@@ -1,10 +1,10 @@
-using ChainRecursive
+using Chain
 using Documenter
 
 makedocs(
-    modules = [ChainRecursive],
+    modules = [Chain],
     format = :html,
-    sitename = "ChainRecursive.jl",
+    sitename = "Chain.jl",
     root = joinpath(dirname(dirname(@__FILE__)), "docs"),
     pages = Any["Home" => "index.md"],
     strict = true

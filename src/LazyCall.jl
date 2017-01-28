@@ -1,5 +1,8 @@
 module LazyCall
 
-# package code goes here
+import ChainRecursive, CreateMacrosFrom, MacroTools
 
-end # module
+include("lazy_call.jl")
+include("unweave.jl
+
+end
