@@ -1,5 +1,11 @@
 using LazyCall
-using Base.Test
+using Documenter
 
-# write your own tests here
-@test 1 == 2
+makedocs(
+    modules = [LazyCall],
+    format = :html,
+    sitename = "LazyCall.jl",
+    root = joinpath(dirname(dirname(@__FILE__)), "docs"),
+    pages = Any["Home" => "index.md"],
+    strict = true
+)
