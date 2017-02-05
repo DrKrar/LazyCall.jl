@@ -95,7 +95,7 @@ ERROR: Can only weave in one (set of) parameters
 [...]
 ```
 
-With no woven arguments, `Call` will only contains an dummy anonymous function.
+With no woven arguments, `Call` will only contain a dummy anonymous function.
 
 ```jldoctest
 julia> using LazyCall
