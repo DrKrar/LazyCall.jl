@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Home · LazyCall.jl</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.5.0/styles/default.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Ubuntu+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="assets/documenter.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="assets/documenter.js"></script><script src="../versions.js"></script></head><body><nav class="toc"><h1>LazyCall.jl</h1><form class="search" action="search.html"><select id="version-selector" onChange="window.location.href=this.value"><option value="#" selected="selected" disabled="disabled">Version</option></select><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li class="current"><a class="toctext" href="index.html">Home</a><ul class="internal"></ul></li></ul></nav><article id="docs"><header><nav><ul><li><a href="index.html">Home</a></li></ul><a class="edit-page" href="https://github.com/bramtayl/LazyCall.jl/tree/c0186c6cfb352e886fcebbe11f55b41bba9866c7/docs/src/index.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/></header><h1><a class="nav-anchor" id="LazyCall.jl-1" href="#LazyCall.jl-1">LazyCall.jl</a></h1><p>LazyCall allows you to store a function along with its arguments for later use. This is particularly useful in functional programming. Here&#39;s a quick demo:</p><pre><code class="language-jlcon">julia&gt; using ChainRecursive, LazyCall, Base.Generator
+
+julia&gt; @chain begin
+           [-2, 0, -2, 0]
+           @unweave ~_ + 1 &gt; 0
+           Generator
+           sum
+       end
+2</code></pre><p>Methods on LazyCalls are currently defined for only four base functions: <code>map</code>, <code>filter</code>, <code>broadcast</code>, and <code>Base.Generator</code>. However, there is the potential for many more methods. I&#39;ve created a wish-list issue on github for ideas.</p><ul><li><a href="index.html#LazyCall.Call"><code>LazyCall.Call</code></a></li><li><a href="index.html#LazyCall.bit_not"><code>LazyCall.bit_not</code></a></li><li><a href="index.html#LazyCall.collect_call-Tuple"><code>LazyCall.collect_call</code></a></li><li><a href="index.html#LazyCall.push-Tuple{LazyCall.Call,Vararg{Any,N} where N}"><code>LazyCall.push</code></a></li><li><a href="index.html#LazyCall.unshift-Tuple{LazyCall.Call,Vararg{Any,N} where N}"><code>LazyCall.unshift</code></a></li><li><a href="index.html#LazyCall.unweave-Tuple{Any}"><code>LazyCall.unweave</code></a></li><li><a href="index.html#LazyCall.@unweave"><code>LazyCall.@unweave</code></a></li></ul><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="LazyCall.Call" href="#LazyCall.Call"><code>LazyCall.Call</code></a> — <span class="docstring-category">Type</span>.</div><div><pre><code class="language-none">immutable Call</code></pre><p>Will store positional and keyword arguments. Create with <a href="index.html#LazyCall.collect_call-Tuple"><code>collect_call</code></a> or <a href="index.html#LazyCall.unweave-Tuple{Any}"><code>unweave</code></a>.</p><p>You can include positional arguments, keyword arguments, or both.</p><pre><code class="language-jlcon">julia&gt; using LazyCall
+
+julia&gt; collect_call(1, 2)
+1, 2
+
+julia&gt; collect_call(a = 1, b = 2)
+; a = 1, b = 2
+
+julia&gt; collect_call(1, 2, a = 1, b = 2)
+1, 2; a = 1, b = 2</code></pre><p>They are equal if all of their elements are equal and the positional arguments are in the right order. Keyword order doesn&#39;t matter.</p><pre><code class="language-jlcon">julia&gt; using LazyCall
+
+julia&gt; collect_call(1, 2, a = 1, b = 2) == collect_call(1, 2, b = 2, a = 1)
+true</code></pre><p>You can <code>merge</code> two <code>Call</code>s.</p><pre><code class="language-jlcon">julia&gt; using LazyCall
+
+julia&gt; merge(
+           collect_call(1, a = 2, b = 3),
+           collect_call(4, a = 5, c = 6)
+       )
+1, 4; c = 6, a = 5, b = 3</code></pre><p>You can <a href="index.html#LazyCall.push-Tuple{LazyCall.Call,Vararg{Any,N} where N}"><code>push</code></a> in new arguments.</p><pre><code class="language-jlcon">julia&gt; using LazyCall
+
+julia&gt; initial = collect_call(1, a = 2, b = 3);
+
+julia&gt; push(initial, 4, a = 5, c = 6)
+1, 4; c = 6, a = 5, b = 3</code></pre><p>You can <a href="index.html#LazyCall.unshift-Tuple{LazyCall.Call,Vararg{Any,N} where N}"><code>unshift</code></a> in new arguments.</p><pre><code class="language-jlcon">julia&gt; using LazyCall
+
+julia&gt; initial = collect_call(1, a = 2, b = 3);
+
+julia&gt; unshift(initial, 4, a = 5, c = 6)
+4, 1; c = 6, a = 2, b = 3</code></pre><p>When you <code>run</code> a <code>Call</code>, it calls the first positional argument on the rest of the positional and keyword arguments.</p><pre><code class="language-jlcon">julia&gt; using LazyCall
+
+julia&gt; run( collect_call(vcat, 1, 2) )
+2-element Array{Int64,1}:
+ 1
+ 2</code></pre><p>Several new methods for base functions are defined on <code>Call</code>s. See documentation for a full list.</p><pre><code class="language-jlcon">julia&gt; using LazyCall
+
+julia&gt; map( @unweave vcat(~[1, 2], ~[3, 4]) ) == map(vcat, [1, 2], [3, 4] )
+true</code></pre></div><a class="source-link" target="_blank" href="https://github.com/bramtayl/LazyCall.jl/tree/c0186c6cfb352e886fcebbe11f55b41bba9866c7/src/lazy_call.jl#L2-L83">source</a><br/></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="LazyCall.bit_not" href="#LazyCall.bit_not"><code>LazyCall.bit_not</code></a> — <span class="docstring-category">Function</span>.</div><div><pre><code class="language-none">bit_not</code></pre><p>Alias for <code>~</code> for use within <a href="index.html#LazyCall.@unweave"><code>@unweave</code></a>.</p><p><strong>examples</strong></p><pre><code class="language-jlcon">julia&gt; using LazyCall
+
+julia&gt; bit_not(1) == ~1
+true</code></pre></div><a class="source-link" target="_blank" href="https://github.com/bramtayl/LazyCall.jl/tree/c0186c6cfb352e886fcebbe11f55b41bba9866c7/src/unweave.jl#L135-L147">source</a><br/></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="LazyCall.collect_call-Tuple" href="#LazyCall.collect_call-Tuple"><code>LazyCall.collect_call</code></a> — <span class="docstring-category">Method</span>.</div><div><pre><code class="language-none">collect_call(positional...; keyword...)</code></pre><p>Collect a <a href="index.html#LazyCall.Call"><code>Call</code></a>.</p><pre><code class="language-jlcon">julia&gt; using LazyCall
+
+julia&gt; collect_call(1, 2, a = 1, b = 2)
+1, 2; a = 1, b = 2</code></pre></div><a class="source-link" target="_blank" href="https://github.com/bramtayl/LazyCall.jl/tree/c0186c6cfb352e886fcebbe11f55b41bba9866c7/src/lazy_call.jl#L111-L122">source</a><br/></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="LazyCall.push-Tuple{LazyCall.Call,Vararg{Any,N} where N}" href="#LazyCall.push-Tuple{LazyCall.Call,Vararg{Any,N} where N}"><code>LazyCall.push</code></a> — <span class="docstring-category">Method</span>.</div><div><pre><code class="language-none">push</code></pre><p>Same as <code>push!</code> but will leave arguments unchanged.</p></div><a class="source-link" target="_blank" href="https://github.com/bramtayl/LazyCall.jl/tree/c0186c6cfb352e886fcebbe11f55b41bba9866c7/src/lazy_call.jl#L93-L97">source</a><br/></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="LazyCall.unshift-Tuple{LazyCall.Call,Vararg{Any,N} where N}" href="#LazyCall.unshift-Tuple{LazyCall.Call,Vararg{Any,N} where N}"><code>LazyCall.unshift</code></a> — <span class="docstring-category">Method</span>.</div><div><pre><code class="language-none">unshift</code></pre><p>Same as <code>unshift!</code> but will leave arguments unchanged.</p></div><a class="source-link" target="_blank" href="https://github.com/bramtayl/LazyCall.jl/tree/c0186c6cfb352e886fcebbe11f55b41bba9866c7/src/lazy_call.jl#L102-L106">source</a><br/></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="LazyCall.@unweave" href="#LazyCall.@unweave"><code>LazyCall.@unweave</code></a> — <span class="docstring-category">Macro</span>.</div><div><p>See documentation of <a href="index.html#LazyCall.unweave-Tuple{Any}"><code>unweave</code></a></p></div><a class="source-link" target="_blank" href="https://github.com/bramtayl/LazyCall.jl/tree/c0186c6cfb352e886fcebbe11f55b41bba9866c7/src/unweave.jl#L131">source</a><br/></section><section class="docstring"><div class="docstring-header"><a class="docstring-binding" id="LazyCall.unweave-Tuple{Any}" href="#LazyCall.unweave-Tuple{Any}"><code>LazyCall.unweave</code></a> — <span class="docstring-category">Method</span>.</div><div><pre><code class="language-none">@unweave e</code></pre><p>Interprets <code>e</code> as a function with its arguments wrapped in tildas and woven into it. Will return a <a href="index.html#LazyCall.Call"><code>Call</code></a>, with an anonymous function as the first positional argument.</p><p>Both variables and expressions can be woven in.</p><pre><code class="language-jlcon">julia&gt; using LazyCall
+
+julia&gt; A = [1, 2];
+
+julia&gt; map( @unweave vcat(~A, ~[3, 4] ) ) == map(vcat, A, [3, 4])
+true</code></pre><p>Variables need only be marked once as arguments.</p><pre><code class="language-jlcon">julia&gt; using LazyCall
+
+julia&gt; A = [1, 2];
+
+julia&gt; map( @unweave vcat(~A, A) ) == map( @unweave vcat(~A, ~A) )
+true</code></pre><p>No more than one splatted positional argument can be woven in.</p><pre><code class="language-jlcon">julia&gt; using LazyCall
+
+julia&gt; A = [1, 2], [3, 4];
+
+julia&gt; B = [5, 6], [7, 8];
+
+julia&gt; map( @unweave vcat( ~(A...) ) ) == map(vcat, A...)
+true
+
+julia&gt; @unweave vcat( ~(A...), ~(B...) )
+ERROR: syntax: invalid ... on non-final argument
+[...]</code></pre><p>No more than one splatted keyword argument can be woven in.</p><pre><code class="language-jlcon">julia&gt; using LazyCall
+
+julia&gt; keyword_arguments(; kwargs...) = kwargs;
+
+julia&gt; A = keyword_arguments( a = 1, b = 2);
+
+julia&gt; B = keyword_arguments( c = 3, d = 4);
+
+julia&gt; run( @unweave keyword_arguments(; ~(A...) ) ) ==
+           keyword_arguments(; A...)
+true
+
+julia&gt; @unweave keyword_arguments(; ~( A...), ~(B...) )
+ERROR: Can only weave in one (set of) parameters
+[...]</code></pre><p>With no woven arguments, <code>Call</code> will only contain a dummy anonymous function.</p><pre><code class="language-jlcon">julia&gt; using LazyCall
+
+julia&gt; run( @unweave 1)
+1</code></pre></div><a class="source-link" target="_blank" href="https://github.com/bramtayl/LazyCall.jl/tree/c0186c6cfb352e886fcebbe11f55b41bba9866c7/src/unweave.jl#L36-L106">source</a><br/></section><footer><hr/></footer></article></body></html>
