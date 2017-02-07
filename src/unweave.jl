@@ -1,5 +1,5 @@
 # type piracy guilt
-Base.map(f, e::Expr) = Expr(e.head, map(f, e.args)...)
+map_expression(f, e::Expr) = Expr(e.head, map(f, e.args)...)
 
 get_symbol(s::Symbol) = s
 get_symbol(e) = gensym()
@@ -28,7 +28,7 @@ replace_record!(d, e::Expr, non_parameters, parameters) =
         else
             non_parameters
         end
-        map(e -> replace_record!(d, e, non_parameters, parameters), e)
+        map_expression(e -> replace_record!(d, e, non_parameters, parameters), e)
     end
 
 move_dots_to_back!(d) = sort!(d, by = key -> MacroTools.isexpr(key, :...) )
