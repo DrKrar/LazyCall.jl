@@ -41,21 +41,23 @@ julia> merge(
 
 You can [`push`](@ref) in new arguments.
 ```jldoctest
-julia> using LazyCall
+julia> using LazyCall, ChainRecursive
 
-julia> initial = collect_call(1, a = 2, b = 3);
-
-julia> push(initial, 4, a = 5, c = 6)
+julia> @chain begin
+           collect_call(1, a = 2, b = 3)
+           push(_, 4, a = 5, c = 6)
+       end
 1, 4; c = 6, a = 5, b = 3
 ```
 
 You can [`unshift`](@ref) in new arguments.
 ```jldoctest
-julia> using LazyCall
+julia> using LazyCall, ChainRecursive
 
-julia> initial = collect_call(1, a = 2, b = 3);
-
-julia> unshift(initial, 4, a = 5, c = 6)
+julia> @chain begin
+           collect_call(1, a = 2, b = 3)
+           unshift(_, 4, a = 5, c = 6)
+       end
 4, 1; c = 6, a = 2, b = 3
 ```
 
@@ -65,20 +67,10 @@ the positional and keyword arguments.
 ```jldoctest
 julia> using LazyCall
 
-julia> run( collect_call(vcat, 1, 2) )
+julia> collect_call(vcat, 1, 2) |> run
 2-element Array{Int64,1}:
  1
  2
-```
-
-Several new methods for base functions are defined on `Call`s. See documentation
-for a full list.
-
-```jldoctest
-julia> using LazyCall
-
-julia> map( @unweave vcat(~[1, 2], ~[3, 4]) ) == map(vcat, [1, 2], [3, 4] )
-true
 ```
 """
 immutable Call

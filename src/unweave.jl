@@ -42,33 +42,45 @@ positional argument.
 
 Both variables and expressions can be woven in.
 ```jldoctest
-julia> using LazyCall
+julia> using LazyCall, ChainRecursive
 
 julia> A = [1, 2];
 
-julia> map( @unweave vcat(~A, ~[3, 4] ) ) == map(vcat, A, [3, 4])
+julia> @chain begin
+           @unweave vcat(~A, ~[3, 4] )
+           broadcast(_)
+           _ == broadcast(vcat, A, [3, 4] )
+       end
 true
 ```
 
 Variables need only be marked once as arguments.
 ```jldoctest
-julia> using LazyCall
+julia> using LazyCall, ChainRecursive
 
 julia> A = [1, 2];
 
-julia> map( @unweave vcat(~A, A) ) == map( @unweave vcat(~A, ~A) )
+julia> @chain begin
+           @unweave vcat(~A, A)
+           broadcast(_)
+           _ == map(vcat, A, A)
+       end
 true
 ```
 
 No more than one splatted positional argument can be woven in.
 ```jldoctest
-julia> using LazyCall
+julia> using LazyCall, ChainRecursive
 
 julia> A = [1, 2], [3, 4];
 
 julia> B = [5, 6], [7, 8];
 
-julia> map( @unweave vcat( ~(A...) ) ) == map(vcat, A...)
+julia> @chain begin
+           @unweave vcat( ~(A...) )
+           broadcast(_)
+           _ == broadcast(vcat, A...)
+       end
 true
 
 julia> @unweave vcat( ~(A...), ~(B...) )
@@ -78,7 +90,7 @@ ERROR: syntax: invalid ... on non-final argument
 
 No more than one splatted keyword argument can be woven in.
 ```jldoctest
-julia> using LazyCall
+julia> using LazyCall, ChainRecursive
 
 julia> keyword_arguments(; kwargs...) = kwargs;
 
@@ -86,8 +98,11 @@ julia> A = keyword_arguments( a = 1, b = 2);
 
 julia> B = keyword_arguments( c = 3, d = 4);
 
-julia> run( @unweave keyword_arguments(; ~(A...) ) ) ==
-           keyword_arguments(; A...)
+julia> @chain begin
+           @unweave keyword_arguments(; ~(A...) )
+           run(_)
+           _ == keyword_arguments(; A...)
+       end
 true
 
 julia> @unweave keyword_arguments(; ~( A...), ~(B...) )
@@ -100,7 +115,7 @@ With no woven arguments, `Call` will only contain a dummy anonymous function.
 ```jldoctest
 julia> using LazyCall
 
-julia> run( @unweave 1)
+julia> run(@unweave 1)
 1
 ```
 """
