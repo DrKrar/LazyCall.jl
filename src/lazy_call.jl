@@ -30,13 +30,16 @@ true
 
 You can `merge` two `Call`s.
 ```jldoctest
-julia> using LazyCall
+julia> using LazyCall, ChainRecursive
 
-julia> merge(
-           collect_call(1, a = 2, b = 3),
-           collect_call(4, a = 5, c = 6)
-       )
-1, 4; c = 6, a = 5, b = 3
+julia> @chain begin
+           merge(
+               collect_call(1, a = 2, b = 3),
+               collect_call(4, a = 5, c = 6)
+            )
+            _ == collect_call(1, 4; a = 5, b = 3, c = 6)
+       end
+true
 ```
 
 You can [`push`](@ref) in new arguments.
@@ -46,8 +49,9 @@ julia> using LazyCall, ChainRecursive
 julia> @chain begin
            collect_call(1, a = 2, b = 3)
            push(_, 4, a = 5, c = 6)
+           _ == collect_call(1, 4; a = 5, b = 3, c = 6)
        end
-1, 4; c = 6, a = 5, b = 3
+true
 ```
 
 You can [`unshift`](@ref) in new arguments.
@@ -57,8 +61,9 @@ julia> using LazyCall, ChainRecursive
 julia> @chain begin
            collect_call(1, a = 2, b = 3)
            unshift(_, 4, a = 5, c = 6)
+           _ == collect_call(4, 1; a = 2, b = 3, c = 6)
        end
-4, 1; c = 6, a = 2, b = 3
+true
 ```
 
 When you `run` a `Call`, it calls the first positional argument on the rest of
