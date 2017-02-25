@@ -109,15 +109,6 @@ julia> @unweave keyword_arguments(; ~( A...), ~(B...) )
 ERROR: Can only weave in one (set of) parameters
 [...]
 ```
-
-With no woven arguments, `Call` will only contain a dummy anonymous function.
-
-```jldoctest
-julia> using LazyCall
-
-julia> run(@unweave 1)
-1
-```
 """
 unweave(e) = begin
     non_parameters = DataStructures.OrderedDict()
@@ -156,7 +147,7 @@ Alias for `~` for use within [`@unweave`](@ref).
 ```jldoctest
 julia> using LazyCall
 
-julia> bit_not(1) == ~1
+julia> run(@unweave bit_not(1) ) == ~1
 true
 ```
 """

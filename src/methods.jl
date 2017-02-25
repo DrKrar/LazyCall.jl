@@ -1,11 +1,6 @@
 basic_method(f) = :(
     $f(c::$Call, positional...; keyword...) =
-        if length(c.positional) == 0
-            error("Must include at least on positional argument to the Call")
-        else
-            $f(c.positional[1], positional..., c.positional[2:end]...;
-                c.keyword..., keyword...)
-        end
+        run(insert(c, 2, positional...; keyword...), $f)
 )
 
 lazy_call_method(a_module, f) = basic_method( :($a_module.$f) )
