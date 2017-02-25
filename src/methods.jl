@@ -53,9 +53,4 @@ export @lazy_call_methods
 
 # disambiguation method
 Base.broadcast(c::Call, x::Number...) =
-    if length(c.positional) == 0
-        error("Must include at least on positional argument to the Call")
-    else
-        Base.broadcast(c.positional[1], x..., c.positional[2:end]...;
-        c.keyword...)
-    end
+    run(insert(c, 2, x...), Base.broadcast)

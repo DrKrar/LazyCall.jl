@@ -49,17 +49,17 @@ julia> using LazyCall, ChainRecursive
 
 julia> base = collect_call(1, 2, a = 3, b = 4);
 
-julia> @chain begin
-           merge(base, collect_call(5, a = 6, c = 7) )
-           _ == collect_call(1, 2, 5; a = 6, b = 4, c = 7)
-       end
+julia> addition = collect_call(5, a = 6, c = 7);
+
+julia> merge(base, addition) == collect_call(1, 2, 5; a = 6, b = 4, c = 7)
 true
 
-julia> @chain begin
-            merge(base, collect_call(5, a = 6, c = 7), 2)
-            _ == collect_call(1, 5, 2; a = 6, b = 4, c = 7)
-       end
+julia> merge(base, addition, 2) == collect_call(1, 5, 2; a = 6, b = 4, c = 7)
 true
+
+julia> merge(base, addition, 4)
+ERROR: Call a must have at least position - 1 positional arguments
+[...]
 ```
 
 You can `push`, `unshift`, or `insert` in new arguments.
