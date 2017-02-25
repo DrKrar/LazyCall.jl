@@ -16,7 +16,7 @@ For each function in `fs` in `a_module`, create a method that takes a
 [`Call`](@ref). This method will make assumptions about argument order.
 Positional arguments from the outer call will be inserted between the first
 (typically a function) and second positional arguments of the inner
-[`Call`]. This makes sense in many cases. For more complicated cases, like
+`Call`. This makes sense in many cases. For more complicated cases, like
 `mapreducedim`, `Call` methods can be defined by hand.
 
 ```jldoctest

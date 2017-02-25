@@ -63,7 +63,7 @@ julia> A = [1, 2];
 julia> @chain begin
            @unweave vcat(~A, A)
            broadcast(_)
-           _ == map(vcat, A, A)
+           _ == map(a -> vcat(a, a), A)
        end
 true
 ```
