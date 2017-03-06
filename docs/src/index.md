@@ -1,6 +1,6 @@
 # LazyCall.jl
 
-LazyCall allows you to store a function along with its arguments for later use.
+`LazyCall` allows you to store a function along with its arguments for later use.
 This is particularly useful in functional programming.
 
 Methods on LazyCalls are currently defined for one `Base` function: `broadcast`.

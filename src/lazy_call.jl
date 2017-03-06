@@ -1,4 +1,4 @@
-export Call
+export LazyCall
 """
     immutable Call
 
@@ -58,7 +58,7 @@ julia> merge(base, addition, 2) == collect_call(1, 5, 2; a = 6, b = 4, c = 7)
 true
 
 julia> merge(base, addition, 4)
-ERROR: Call a must have at least position - 1 positional arguments
+ERROR: Call `a` must have at least position - 1 positional arguments
 [...]
 ```
 
@@ -68,22 +68,16 @@ julia> using LazyCall, ChainRecursive
 
 julia> base = collect_call(1, 2, a = 3, b = 4);
 
-julia> @chain begin
-           push(base, 5, a = 6, c = 7)
-           _ == collect_call(1, 2, 5; a = 6, b = 4, c = 7)
-       end
+julia> push(base, 5, a = 6, c = 7) ==
+           collect_call(1, 2, 5; a = 6, b = 4, c = 7)
 true
 
-julia> @chain begin
-           unshift(base, 5, a = 6, c = 7)
-           _ == collect_call(5, 1, 2; a = 6, b = 4, c = 7)
-       end
+julia> unshift(base, 5, a = 6, c = 7) ==
+           collect_call(5, 1, 2; a = 6, b = 4, c = 7)
 true
 
-julia> @chain begin
-           insert(base, 2, 5, a = 6, c = 7)
-           _ == collect_call(1, 5, 2; a = 6, b = 4, c = 7)
-       end
+julia> insert(base, 2, 5, a = 6, c = 7) ==
+           collect_call(1, 5, 2; a = 6, b = 4, c = 7)
 true
 ```
 
@@ -94,7 +88,7 @@ julia> using LazyCall, ChainRecursive
 
 julia> @chain begin
            collect_call(1, 2)
-           run(_, vcat)
+           run(it, vcat)
        end
 2-element Array{Int64,1}:
  1
@@ -120,7 +114,7 @@ end
 
 Base.merge(a::Call, b::Call, position = length(a.positional) + 1) = begin
     if length(a.positional) < position - 1
-        error("Call a must have at least position - 1 positional arguments")
+        error("Call `a` must have at least position - 1 positional arguments")
     end
     Call(
         (a.positional[1:position - 1]..., b.positional..., a.positional[position:end]...),
@@ -145,13 +139,6 @@ export collect_call
     collect_call(positional...; keyword...)
 
 Collect a [`Call`](@ref).
-
-```jldoctest
-julia> using LazyCall
-
-julia> collect_call(1, 2, a = 1, b = 2)
-1, 2; a = 1, b = 2
-```
 """
 collect_call(positional...; keyword...) =
     Call(positional, Dict(keyword) )
@@ -185,8 +172,8 @@ Base.string(c::Call) = begin
     else
         ChainRecursive.@chain begin
             ( string(k, " = ", v) for (k, v) in c.keyword )
-            reduce(paste_two, _)
-            string("; ", _)
+            reduce(paste_two, it)
+            string("; ", it)
         end
     end
 
