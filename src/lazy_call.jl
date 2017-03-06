@@ -58,7 +58,7 @@ julia> merge(base, addition, 2) == collect_call(1, 5, 2; a = 6, b = 4, c = 7)
 true
 
 julia> merge(base, addition, 4)
-ERROR: Call `a` must have at least position - 1 positional arguments
+ERROR: Call `a` must have at least `position` - 1 positional arguments
 [...]
 ```
 
