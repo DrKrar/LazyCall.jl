@@ -114,7 +114,7 @@ end
 
 Base.merge(a::Call, b::Call, position = length(a.positional) + 1) = begin
     if length(a.positional) < position - 1
-        error("Call `a` must have at least position - 1 positional arguments")
+        error("Call `a` must have at least `position` - 1 positional arguments")
     end
     Call(
         (a.positional[1:position - 1]..., b.positional..., a.positional[position:end]...),

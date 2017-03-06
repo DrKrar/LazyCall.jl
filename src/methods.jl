@@ -11,7 +11,7 @@ export lazy_call_methods
 """
     @lazy_call_methods fs...
 
-For each function in `fs`, create a method that takes aWW
+For each function in `fs`, create a method that takes a
 [`Call`](@ref). This method will make assumptions about argument order.
 Positional arguments from the outer call will be inserted between the first
 (typically a function) and second positional arguments of the inner
@@ -46,7 +46,8 @@ export lazy_call_module_methods
 """
     @lazy_call_methods a_module fs...
 
-Same as [`lazy_call_methods`](@ref) `fs` functions that are in `a_module`.
+Same as [`lazy_call_methods`](@ref), where `fs` functions that are in
+`a_module`.
 
 ```jldoctest
 julia> using LazyCall, ChainRecursive
